@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_102.
- */
 package fliptracker.Utils;
 
 import java.io.BufferedReader;
@@ -11,10 +8,19 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
+/**
+ * Used for loading data from the Internet eg. Buy limits
+ */
 class WebPage {
+
     private URL url;
     private ArrayList<String> lines;
 
+    /**
+     * Create a new webpage object
+     * @param url url of the site to read
+     * @throws MalformedURLException
+     */
     public WebPage(String url) throws MalformedURLException {
         if (!url.startsWith("http://")) {
             url = "http://" + url;
@@ -23,9 +29,13 @@ class WebPage {
         this.url = new URL(url);
     }
 
+    /**
+     * Read the lines on the page
+     * @throws IOException
+     */
     public void load() throws IOException {
         String line;
-        this.lines = new ArrayList();
+        this.lines = new ArrayList<>();
         URLConnection c = this.url.openConnection();
         c.setReadTimeout(3000);
         BufferedReader stream = new BufferedReader(new InputStreamReader(c.getInputStream()));
@@ -35,6 +45,10 @@ class WebPage {
         stream.close();
     }
 
+    /**
+     *
+     * @return Lines in the webpage (has to be loaded before calling this)
+     */
     public ArrayList<String> getLines() {
         return this.lines;
     }
