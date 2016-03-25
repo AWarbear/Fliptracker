@@ -1,20 +1,26 @@
-/*
- * Decompiled with CFR 0_102.
- */
 package fliptracker.Audio;
-
-import fliptracker.Audio.SoundEffect;
 
 import java.util.ArrayList;
 
+/**
+ * Audio handler for handling sound effects
+ */
 public class AudioHandler {
+
     public final ArrayList<SoundEffect> soundEffect = new ArrayList<>();
 
+    /**
+     * Initiate sound effects
+     */
     public AudioHandler() {
-        this.soundEffect.add(new SoundEffect("Done", "Ding.wav"));
-        this.soundEffect.add(new SoundEffect("Rule", "Beep.wav"));
+        soundEffect.add(new SoundEffect("Done", "Ding.wav"));
+        soundEffect.add(new SoundEffect("Rule", "Beep.wav"));
     }
 
+    /**
+     * Play a sound with the give name
+     * @param soundName the effect name
+     */
     public void playSound(String soundName) {
         SoundEffect effect;
         switch (soundName) {
