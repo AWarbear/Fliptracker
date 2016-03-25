@@ -1,38 +1,31 @@
-/*
- * Decompiled with CFR 0_102.
- * 
- * Could not load the following classes:
- *  javafx.collections.ObservableList
- *  javafx.stage.FileChooser
- *  javafx.stage.FileChooser$ExtensionFilter
- *  javafx.stage.Window
- */
 package fliptracker.Utils;
 
 import fliptracker.UIComponents.Controllers.GuiController;
 import fliptracker.UIComponents.ItemPanel;
+import javafx.stage.FileChooser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import javafx.stage.FileChooser;
-
+/**
+ * Handles all the file actions
+ */
 public class FileManager {
+
     private File file;
     private BufferedWriter bw;
     private BufferedReader br;
 
+    /**
+     * Load a margins file (opens up a file chooser dialog)
+     * @param activeItems the list to add loaded active flips to
+     * @param logItems the list to add loaded logged flips to
+     * @param controller gui controller
+     */
     public void load(List<ItemPanel> activeItems, List<ItemPanel> logItems, GuiController controller) {
         this.file = null;
         FileChooser fileChooser = new FileChooser();
@@ -70,6 +63,13 @@ public class FileManager {
         }
     }
 
+    /**
+     * Load a margins file (from a specified file)
+     * @param activeItems the list to add loaded active flips to
+     * @param logItems the list to add loaded logged flips to
+     * @param logFile the file to load from
+     * @param controller gui controller
+     */
     public void load(List<ItemPanel> activeItems, List<ItemPanel> logItems, File logFile, GuiController controller) {
         if (logFile != null) try {
             if (!logFile.exists()) {
@@ -94,6 +94,10 @@ public class FileManager {
         }
     }
 
+    /**
+     * Open file chooser dialogue and return the selected file
+     * @return the file selected
+     */
     public File getChosenFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open File");
@@ -101,6 +105,10 @@ public class FileManager {
         return fileChooser.showOpenDialog(null);
     }
 
+    /**
+     * Open a file chooser dialogue and return a file (Only allows wav files)
+     * @return the audio file chosen
+     */
     public File getWavFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open File");
@@ -109,6 +117,51 @@ public class FileManager {
         return fileChooser.showOpenDialog(null);
     }
 
+    /**
+     * Save margins to a file specified by a file chooser dialogue
+     * @param activeItems the active flips list to write to the file
+     * @param logItems the log flips list to write to the file
+     * @param controller gui controller
+     */
+    public void save(List<ItemPanel> activeItems, List<ItemPanel> logItems, GuiController controller) {
+        this.file = null;
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save File");
+        this.file = fileChooser.showSaveDialog(null);
+        controller.profileManager.setLogFile(this.file);
+        if (this.file != null) {
+            try {
+                String line;
+                int i;
+                ItemPanel item;
+                this.bw = this.file.getAbsolutePath().toLowerCase().endsWith(".csv") ? new BufferedWriter(new FileWriter(this.file, false)) : new BufferedWriter(new FileWriter(this.file + ".csv", false));
+                this.bw.write("state,itemName,price,amount,type,date,duration");
+                this.bw.newLine();
+                for (i = 0; i < activeItems.size(); ++i) {
+                    item = activeItems.get(i);
+                    line = "Active," + item.itemName + "," + item.price + "," + item.amount + "," + item.type + "," + item.getTime() + "," + item.getDuration();
+                    this.bw.write(line);
+                    this.bw.newLine();
+                }
+                for (i = 0; i < logItems.size(); ++i) {
+                    item = logItems.get(i);
+                    line = "Log," + item.itemName + "," + item.price + "," + item.amount + "," + item.type + "," + item.getTime() + item.getDuration();
+                    this.bw.write(line);
+                    this.bw.newLine();
+                }
+                this.bw.flush();
+                this.bw.close();
+            } catch (IOException ie) {
+                ie.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Write to a file
+     * @param lines to write (line/line in file)
+     * @param targetFile the file to write to
+     */
     public void save(ArrayList<String> lines, File targetFile) {
         if (targetFile == null) {
             Logger.Log("File is null");
@@ -128,6 +181,10 @@ public class FileManager {
         }
     }
 
+    /**
+     * Read the updates from the update file online
+     * @return the update lines (a bunch of html tags)
+     */
     public String readUpdates() {
         String result = "";
         try {
@@ -144,6 +201,11 @@ public class FileManager {
         return result;
     }
 
+    /**
+     * Return the lines in a file, used for loading settings
+     * @param file file to load from
+     * @return the contents of the file in lines
+     */
     public ArrayList<String> getFileLines(File file) {
         ArrayList<String> lines = new ArrayList<>();
         if (file != null) {
@@ -168,6 +230,10 @@ public class FileManager {
         return lines;
     }
 
+    /**
+     * Used for dumping runewiki prices
+     * @param limits map to dump the limits to
+     */
     public void dumpPrices(HashMap<String, Integer> limits) {
         Logger.Log("Start dumping wiki limits");
         long time = System.currentTimeMillis();
@@ -203,38 +269,5 @@ public class FileManager {
         Logger.Log("Added: " + (limits.size()-oldSize) + " new limits");
     }
 
-    public void save(List<ItemPanel> activeItems, List<ItemPanel> logItems, GuiController controller) {
-        this.file = null;
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save File");
-        this.file = fileChooser.showSaveDialog(null);
-        controller.profileManager.setLogFile(this.file);
-        if (this.file != null) {
-            try {
-                String line;
-                int i;
-                ItemPanel item;
-                this.bw = this.file.getAbsolutePath().toLowerCase().endsWith(".csv") ? new BufferedWriter(new FileWriter(this.file, false)) : new BufferedWriter(new FileWriter(this.file + ".csv", false));
-                this.bw.write("state,itemName,price,amount,type,date,duration");
-                this.bw.newLine();
-                for (i = 0; i < activeItems.size(); ++i) {
-                    item = activeItems.get(i);
-                    line = "Active," + item.itemName + "," + item.price + "," + item.amount + "," + item.type + "," + item.getTime() + "," + item.getDuration();
-                    this.bw.write(line);
-                    this.bw.newLine();
-                }
-                for (i = 0; i < logItems.size(); ++i) {
-                    item = logItems.get(i);
-                    line = "Log," + item.itemName + "," + item.price + "," + item.amount + "," + item.type + "," + item.getTime() + item.getDuration();
-                    this.bw.write(line);
-                    this.bw.newLine();
-                }
-                this.bw.flush();
-                this.bw.close();
-            } catch (IOException ie) {
-                ie.printStackTrace();
-            }
-        }
-    }
 }
 
