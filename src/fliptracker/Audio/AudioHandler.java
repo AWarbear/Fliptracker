@@ -25,15 +25,15 @@ public class AudioHandler {
         SoundEffect effect;
         switch (soundName) {
             case "Done": {
-                effect = this.soundEffect.get(0);
+                effect = soundEffect.get(0);
                 break;
             }
             case "Rule": {
-                effect = this.soundEffect.get(1);
+                effect = soundEffect.get(1);
                 break;
             }
             case "Custom": {
-                effect = this.soundEffect.get(2);
+                effect = soundEffect.get(2);
                 break;
             }
             default: {

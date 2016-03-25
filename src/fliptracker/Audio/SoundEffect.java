@@ -1,28 +1,32 @@
-/*
- * Decompiled with CFR 0_102.
- */
 package fliptracker.Audio;
 
+import javax.sound.sampled.*;
 import java.io.File;
 import java.net.URL;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
 
+/**
+ * SoundEffect class used for holding data about sound effects
+ */
 public class SoundEffect {
-    public Clip clip;
-    private AudioInputStream audioInputStream;
 
-    public SoundEffect(String Name, String Path) {
-        String name = Name;
+    Clip clip;
+
+    private AudioInputStream audioInputStream;
+    private String name;
+
+    /**
+     * Create the soundeffect from name and path
+     * @param name
+     * @param Path
+     */
+    SoundEffect(String name, String Path) {
+        this.name = name;
         try {
-            this.audioInputStream = AudioSystem.getAudioInputStream(SoundEffect.getResource("Sounds/" + Path));
-            AudioFormat format = this.audioInputStream.getFormat();
+            audioInputStream = AudioSystem.getAudioInputStream(SoundEffect.getResource("Sounds/" + Path));
+            AudioFormat format = audioInputStream.getFormat();
             DataLine.Info info = new DataLine.Info(Clip.class, format);
-            this.clip = (Clip)AudioSystem.getLine(info);
-            this.clip.open(this.audioInputStream);
+            clip = (Clip)AudioSystem.getLine(info);
+            clip.open(this.audioInputStream);
         }
         catch (Exception ex) {
             System.out.println("Error with loading sound.");
@@ -30,6 +34,10 @@ public class SoundEffect {
         }
     }
 
+    /**
+     * Create a sound effect from file
+     * @param file
+     */
     public SoundEffect(File file) {
         try {
             this.audioInputStream = AudioSystem.getAudioInputStream(file);
@@ -44,6 +52,11 @@ public class SoundEffect {
         }
     }
 
+    /**
+     * Fetch the resource path of a file
+     * @param res resource name/path
+     * @return the path to the resource
+     */
     private static URL getResource(String res) {
         return SoundEffect.class.getResource("/fliptracker/res/" + res);
     }
