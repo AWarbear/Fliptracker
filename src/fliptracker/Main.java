@@ -1,19 +1,3 @@
-/*
- * Decompiled with CFR 0_102.
- * 
- * Could not load the following classes:
- *  javafx.application.Application
- *  javafx.collections.ObservableList
- *  javafx.event.Event
- *  javafx.event.EventHandler
- *  javafx.fxml.FXMLLoader
- *  javafx.scene.Parent
- *  javafx.scene.Scene
- *  javafx.scene.image.Image
- *  javafx.stage.Stage
- *  javafx.stage.Window
- *  javafx.stage.WindowEvent
- */
 package fliptracker;
 
 import fliptracker.UIComponents.Controllers.GuiController;
@@ -24,9 +8,17 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class Main
-extends Application {
+/**
+ * The main class
+ */
+public class Main extends Application {
 
+    /**
+     * Start the program
+     *
+     * @param primaryStage
+     * @throws Exception
+     */
     public void start(Stage primaryStage) throws Exception {
         primaryStage.getIcons().add(new Image(this.getClass().getClassLoader().getResourceAsStream("fliptracker/res/Images/Money-icon48.png")));
         String version = "Version 1.1.28";
@@ -43,7 +35,7 @@ extends Application {
     }
 
     public static void main(String[] args) {
-        Main.launch((String[])args);
+        Main.launch((String[]) args);
     }
 }
 
