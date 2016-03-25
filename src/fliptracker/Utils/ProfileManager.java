@@ -127,7 +127,11 @@ public class ProfileManager {
      */
     public void getTheme() {
         controller.rootPane.getStylesheets().clear();
-        controller.rootPane.getStylesheets().add(cssUrls.get(currentTheme));
+        try {
+            controller.rootPane.getStylesheets().add(cssUrls.get(currentTheme));
+        }catch(IndexOutOfBoundsException iobe){
+            //No theme in list, assume default (light theme)
+        }
     }
 
     /**

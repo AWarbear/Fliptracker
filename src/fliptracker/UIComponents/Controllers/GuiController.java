@@ -145,7 +145,7 @@ public class GuiController {
         this.forums.getEngine().loadContent("<html><body style=''><h1 align=center style=\"font-size:4em; text-shadow: 1px 5px 2px #333;\n\">Fliptracker</h1>\n<h2 align=center style=\"text-decoration:underline;\">Update notes</h2>\n<ul>\n" + this.fileManager.readUpdates() + "</ul></body></html>");
         this.marginshare.getEngine().load("http://marginsharers.byethost9.com");
         this.taskThread.start();
-        this.themeBox.getItems().addAll("Dark", "Light");
+        this.themeBox.getItems().addAll("Dark", "Gray","Light");
         this.ruleBox.getItems().addAll("15", "30", "45", "60", "75", "90", "105", "120", "135", "150", "165", "180");
         this.ruleBox.setValue(("" + this.profileManager.ruleTime));
         this.themeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
