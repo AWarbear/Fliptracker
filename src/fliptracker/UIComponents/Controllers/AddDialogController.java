@@ -22,26 +22,19 @@
  */
 package fliptracker.UIComponents.Controllers;
 
-import fliptracker.UIComponents.Controllers.GuiController;
 import fliptracker.UIComponents.ItemPanel;
 import fliptracker.Utils.Logger;
-
-import java.util.ArrayList;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
 
 @SuppressWarnings("ALL")
 public class AddDialogController {
@@ -62,13 +55,21 @@ public class AddDialogController {
     String itemName;
     String type;
 
+    public void setStylesheet(){
+        this.rootPane.getStylesheets().clear();
+        try {
+            this.rootPane.getStylesheets().add(guiController.profileManager.cssUrls.get(guiController.profileManager.currentTheme));
+        }catch(IndexOutOfBoundsException iobe){
+            //No value so go default
+        }
+    }
+
     public void setValues(GuiController controller, Stage window) {
         this.guiController = controller;
         this.window = window;
         this.window.setResizable(false);
         window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
-        this.rootPane.getStylesheets().clear();
-        this.rootPane.getStylesheets().add(controller.profileManager.cssUrls.get(controller.profileManager.currentTheme));
+        setStylesheet();
         if (this.guiController.profileManager.useSearch) {
             this.addSearch();
         }
@@ -79,7 +80,6 @@ public class AddDialogController {
 
     public void addSearch() {
         this.searchBox.getEditor().textProperty().addListener(new ChangeListener<String>(){
-
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (!AddDialogController.this.searchBox.getItems().contains(AddDialogController.this.searchBox.getValue())) {
                     AddDialogController.this.handleSearch(AddDialogController.this.searchBox.getEditor().getText());
@@ -129,8 +129,7 @@ public class AddDialogController {
         this.itemPanel = panel;
         this.add.setText("Edit");
         window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
-        this.rootPane.getStylesheets().clear();
-        this.rootPane.getStylesheets().add(controller.profileManager.cssUrls.get(controller.profileManager.currentTheme));
+        setStylesheet();
         this.searchBox.setValue(this.itemPanel.itemName);
         this.priceField.setText("" + this.itemPanel.price);
         this.cBox.setSelected(this.itemPanel.getType().equals("Buy"));

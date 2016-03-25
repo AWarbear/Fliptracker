@@ -3211,10 +3211,10 @@ Only the properties with values that are different from the TextBox are specifie
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 8, 0.0 , 0 , 0 );
 }
 #itemPanel {
--fx-background-color:linear-gradient(#000000 0%, #222222 25%, #333333 95%, #33FFFF 100%);
+-fx-background-color: -fx-base;
 }
 #addDialog {
--fx-background-color: linear-gradient(#33FFFF 0%, #333333 2%, #222222 85%, #222222 100%);
+-fx-background-color: -fx-accent;
 }
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
