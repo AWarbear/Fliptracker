@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0_102.
- */
 package fliptracker.Utils;
 
 import java.text.SimpleDateFormat;
