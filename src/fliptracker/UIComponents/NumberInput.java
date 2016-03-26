@@ -1,28 +1,6 @@
-/*
- * Decompiled with CFR 0_102.
- * 
- * Could not load the following classes:
- *  javafx.collections.ObservableList
- *  javafx.event.ActionEvent
- *  javafx.event.Event
- *  javafx.event.EventHandler
- *  javafx.geometry.Insets
- *  javafx.scene.Node
- *  javafx.scene.Parent
- *  javafx.scene.Scene
- *  javafx.scene.control.Button
- *  javafx.scene.control.Label
- *  javafx.scene.control.ListView
- *  javafx.scene.control.TextField
- *  javafx.scene.layout.ColumnConstraints
- *  javafx.scene.layout.GridPane
- *  javafx.scene.layout.Priority
- *  javafx.stage.Stage
- */
 package fliptracker.UIComponents;
 
 import fliptracker.UIComponents.Controllers.GuiController;
-import fliptracker.UIComponents.ItemPanel;
 import fliptracker.Utils.Logger;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -35,17 +13,32 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
-class NumberInput
-extends Stage {
-    static final int COMPLETE = 1;
-    private final GuiController controller;
-    private ItemPanel item;
-    private final int type;
-    private final TextField inputField;
+/**
+ * Used for receiving a number input by UI
+ */
+class NumberInput extends Stage {
 
-    public NumberInput(GuiController controller) {
+    /**
+     * Input type
+     */
+    static final int COMPLETE = 1;
+    
+    
+    private final GuiController controller;
+    
+    private final TextField inputField;
+    
+    private final int type;
+    
+    private ItemPanel item;
+
+    /**
+     * Create the input field
+     * @param controller
+     */
+    NumberInput(GuiController controller) {
         this.controller = controller;
-        this.type = 1;
+        this.type = NumberInput.COMPLETE;
         Button complete = new Button("Submit");
         complete.setOnAction(this::handleButtonPress
         );
@@ -84,23 +77,30 @@ extends Stage {
         this.show();
     }
 
+    /**
+     * Set the item to input number to
+     * @param item new item
+     */
     public void setItem(ItemPanel item) {
         this.item = item;
     }
 
+    /**
+     * Handle buttons
+     * @param event
+     */
     private void handleButtonPress(ActionEvent event) {
         if (event.getSource().getClass().equals(Button.class)) {
             Button button = (Button)event.getSource();
             switch (button.getText()) {
                 case "Submit": {
-                    switch (this.type) {
+                    switch (type) {
                         case 1: {
                             int amount;
-                            if (this.item == null) {
+                            if (item == null)
                                 return;
-                            }
                             try {
-                                amount = Integer.parseInt(this.inputField.getText());
+                                amount = Integer.parseInt(inputField.getText());
                             }
                             catch (NumberFormatException nfe) {
                                 Logger.Log("Invalid number don't do anything");
@@ -110,19 +110,19 @@ extends Stage {
                                 Logger.Log("Negative amount -> return");
                                 return;
                             }
-                            if (this.item.amount - amount <= 0) {
-                                this.controller.addLogItem(this.item);
-                                this.controller.activeItems.getItems().remove(this.item);
-                                this.close();
+                            if (item.amount - amount <= 0) {
+                                controller.addLogItem(item);
+                                controller.activeItems.getItems().remove(item);
+                                close();
                             } else {
-                                this.item.amount-=amount;
-                                ItemPanel pane = new ItemPanel(this.item.itemName, this.item.price, amount, this.item.type, this.item.getTime(), this.controller);
-                                pane.duration = this.item.duration;
-                                this.controller.addLogItem(pane);
-                                this.item.update();
-                                this.close();
+                                item.amount-=amount;
+                                ItemPanel pane = new ItemPanel(item.itemName, item.price, amount, item.type, item.getTime(), controller);
+                                pane.duration = item.duration;
+                                controller.addLogItem(pane);
+                                item.update();
+                                close();
                             }
-                            this.controller.profileManager.saveLogFile();
+                            controller.profileManager.saveLogFile();
                         }
                     }
                     break;
