@@ -21,7 +21,7 @@ public class Main extends Application {
      */
     public void start(Stage primaryStage) throws Exception {
         primaryStage.getIcons().add(new Image(this.getClass().getClassLoader().getResourceAsStream("fliptracker/res/Images/Money-icon48.png")));
-        String version = "Version 1.1.28";
+        String version = "Version 1.1.29";
         primaryStage.setTitle("Fliptracker " + version);
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("UIComponents/FXML/FxGUI.fxml"));
         Parent root = fxmlLoader.load();
