@@ -1,4 +1,3 @@
-
 package fliptracker.UIComponents.Controllers;
 
 import fliptracker.Audio.AudioHandler;
@@ -32,11 +31,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * Controller for the main UI
+ */
 public class GuiController {
-    public final AudioHandler audioHandler = new AudioHandler();
-    public final FileManager fileManager = new FileManager();
-    public final ProfileManager profileManager;
-    public String notes;
+
     public AnchorPane rootPane;
     public ListView<ItemPanel> activeItems;
     public ListView<ItemPanel> logItems;
@@ -56,148 +55,168 @@ public class GuiController {
     public LineChart<String, Integer> profitChart;
     public WebView forums;
     public WebView marginshare;
-    private final Runnable limitCheck;
-    private final Runnable saveTask;
-    public final Runnable minuteTask;
-    private final Thread taskThread;
-    public Stage stage;
+
     private final DateFormat dayFormat = new SimpleDateFormat("dd/MM");
     private final DateFormat dateOfyear = new SimpleDateFormat("DD");
-    private final boolean runThreads = true;
-    private int totalProfit = 0;
+
+    public final AudioHandler audioHandler = new AudioHandler();
+    public final FileManager fileManager = new FileManager();
+    public final ProfileManager profileManager;
+
     private final TextInputDialog input;
     private final Alert alert;
 
+    private final Runnable limitCheck;
+    private final Runnable saveTask;
+    private final Runnable minuteTask;
+
+    private final Thread taskThread;
+
+    private boolean runThreads = true;
+
+    private int totalProfit = 0;
+
+    private String notes;
+
+    private Stage stage;
+
+    /**
+     * Construct the controller, initiate settings etc.
+     */
     public GuiController() {
-        this.profileManager = new ProfileManager(this);
-        this.input = new TextInputDialog("");
-        this.alert = new Alert(Alert.AlertType.INFORMATION);
-        this.saveTask = () -> {
-            GuiController.this.profileManager.save();
-            GuiController.this.updateProfits();
+        profileManager = new ProfileManager(this);
+        input = new TextInputDialog("");
+        alert = new Alert(Alert.AlertType.INFORMATION);
+        saveTask = () -> {
+            profileManager.save();
+            updateProfits();
         };
-        this.minuteTask = () -> {
-            for (int i = 0; i < GuiController.this.activeItems.getItems().size(); ++i) {
-                ItemPanel item = GuiController.this.activeItems.getItems().get(i);
-                item.duration = (int) ((GuiController.this.getDate().getTime() - item.getTime()) / 1000 / 60);
+        minuteTask = () -> {
+            for (int i = 0; i < activeItems.getItems().size(); ++i) {
+                ItemPanel item = activeItems.getItems().get(i);
+                item.duration = (int) ((getDate().getTime() - item.getTime()) / 1000 / 60);
                 item.durationLabel.setText("" + item.getDuration() + " mins");
-                if (item.getDuration() != GuiController.this.profileManager.ruleTime || !GuiController.this.profileManager.useRuleTimer || !GuiController.this.profileManager.useSound)
+                if (item.getDuration() != profileManager.ruleTime || !profileManager.useRuleTimer || !profileManager.useSound)
                     continue;
-                if (GuiController.this.profileManager.ruleSound == null) {
-                    GuiController.this.audioHandler.playSound("Rule");
+                if (profileManager.ruleSound == null) {
+                    audioHandler.playSound("Rule");
                     continue;
                 }
-                GuiController.this.audioHandler.playSound("Custom");
+                audioHandler.playSound("Custom");
             }
         };
-        this.limitCheck = () -> {
-            for (int i = 0; i < GuiController.this.logItems.getItems().size(); ++i) {
-                ItemPanel item = GuiController.this.logItems.getItems().get(i);
+        limitCheck = () -> {
+            for (int i = 0; i < logItems.getItems().size(); ++i) {
+                ItemPanel item = logItems.getItems().get(i);
                 item.durationLabel.setText("" + item.getDuration() + " mins");
                 if (item.getType().equals("Sell")) continue;
                 if (!item.isOnCooldown()) {
                     item.setOnCooldown(false);
                     continue;
                 }
-                if (GuiController.this.getDate().getTime() > item.getTime() + 14400000) {
-                    if (GuiController.this.profileManager.useSound) {
-                        GuiController.this.audioHandler.playSound("Done");
-                    }
+                if (getDate().getTime() > item.getTime() + 14400000) {
+                    if (profileManager.useSound)
+                        audioHandler.playSound("Done");
                     item.setOnCooldown(false);
                     continue;
                 }
                 item.setOnCooldown(true);
             }
-            GuiController.this.profitLabel.setText("Total profit: " + GuiController.this.totalProfit);
-            GuiController.this.profileManager.saveMargins();
+            profitLabel.setText("Total profit: " + totalProfit);
+            profileManager.saveMargins();
         };
-        this.taskThread = new Thread() {
-
+        taskThread = new Thread() {
             @Override
             public void run() {
                 int minuteTick = 0;
                 int mediumTick = 0;
-                while (GuiController.this.runThreads) {
+                while (runThreads) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     if (minuteTick == 60) {
-                        Platform.runLater(GuiController.this.minuteTask);
+                        Platform.runLater(minuteTask);
                         minuteTick = 0;
                     } else {
                         ++minuteTick;
                     }
                     if (mediumTick == 10) {
-                        Platform.runLater(GuiController.this.saveTask);
+                        Platform.runLater(saveTask);
                     } else {
                         ++mediumTick;
                     }
-                    Platform.runLater(GuiController.this.limitCheck);
+                    Platform.runLater(limitCheck);
                 }
             }
         };
     }
 
+    /**
+     * Initiate all ui values, has to be done after the UI has loaded
+     */
     public void initFields() {
-        this.loadUp();
-        this.forums.getEngine().loadContent("<html><body style=''><h1 align=center style=\"font-size:4em; text-shadow: 1px 5px 2px #333;\n\">Fliptracker</h1>\n<h2 align=center style=\"text-decoration:underline;\">Update notes</h2>\n<ul>\n" + this.fileManager.readUpdates() + "</ul></body></html>");
-        this.marginshare.getEngine().load("http://marginsharers.byethost9.com");
-        this.taskThread.start();
-        this.themeBox.getItems().addAll("Dark", "Gray","Light");
-        this.ruleBox.getItems().addAll("15", "30", "45", "60", "75", "90", "105", "120", "135", "150", "165", "180");
-        this.ruleBox.setValue(("" + this.profileManager.ruleTime));
-        this.themeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            GuiController.this.profileManager.currentTheme = GuiController.this.themeBox.getSelectionModel().getSelectedIndex();
-            GuiController.this.profileManager.getTheme();
+        loadUp();
+        forums.getEngine().loadContent("<html><body style=''><h1 align=center style=\"font-size:4em; text-shadow: 1px 5px 2px #333;\n\">Fliptracker</h1>\n<h2 align=center style=\"text-decoration:underline;\">Update notes</h2>\n<ul>\n" + this.fileManager.readUpdates() + "</ul></body></html>");
+        marginshare.getEngine().load("http://marginsharers.byethost9.com");
+        taskThread.start();
+        themeBox.getItems().addAll("Dark", "Gray", "Light");
+        ruleBox.getItems().addAll("15", "30", "45", "60", "75", "90", "105", "120", "135", "150", "165", "180");
+        ruleBox.setValue(("" + profileManager.ruleTime));
+        themeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            profileManager.currentTheme = themeBox.getSelectionModel().getSelectedIndex();
+            profileManager.getTheme();
         });
-        this.ruleBox.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+        ruleBox.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.isEmpty()) {
                 return;
             }
             try {
-                GuiController.this.profileManager.ruleTime = Integer.parseInt(newValue);
+                profileManager.ruleTime = Integer.parseInt(newValue);
             } catch (NumberFormatException nfe) {
-                GuiController.this.ruleBox.getEditor().setText(oldValue);
+                ruleBox.getEditor().setText(oldValue);
             }
         });
-        this.ruleBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            GuiController.this.profileManager.ruleTime = Integer.parseInt(newValue);
+        ruleBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            profileManager.ruleTime = Integer.parseInt(newValue);
         });
-        this.addressBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            GuiController.this.forums.getEngine().load(GuiController.this.addressBox.getValue());
+        addressBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            forums.getEngine().load(addressBox.getValue());
         });
         try {
-            this.themeBox.setValue(this.themeBox.getItems().get(this.profileManager.currentTheme));
-            this.profileManager.getTheme();
-        }catch(IndexOutOfBoundsException iobe){
+            themeBox.setValue(themeBox.getItems().get(profileManager.currentTheme));
+            profileManager.getTheme();
+        } catch (IndexOutOfBoundsException iobe) {
             Logger.Log("Error finding the correct theme! Maybe it was deleted, falling back to default.");
         }
-        Platform.runLater(this.minuteTask);
-        this.updateProfits();
+        Platform.runLater(minuteTask);
+        updateProfits();
     }
 
+    /**
+     * Update the profits graph
+     */
     public void updateProfits() {
-        ObservableList lineChartData = FXCollections.observableArrayList();
-        XYChart.Series series1 = new XYChart.Series();
+        ObservableList<XYChart.Series<String, Integer>> lineChartData = FXCollections.observableArrayList();
+        XYChart.Series<String, Integer> series1 = new XYChart.Series<>();
         series1.setName("Daily profit");
-        XYChart.Series profitSeries = new XYChart.Series();
+        XYChart.Series profitSeries = new XYChart.Series<>();
         profitSeries.setName("Total profit");
-        this.totalProfit = 0;
+        totalProfit = 0;
         long date = this.getDate().getTime();
-        int[] amountHandled = new int[this.logItems.getItems().size()];
+        int[] amountHandled = new int[logItems.getItems().size()];
         int profitToday = 0;
         for (int i = 0; i < 5; ++i) {
-            int currentDay = Integer.parseInt(this.dateOfyear.format(new Date(date - (long) (86400000 * i))));
+            int currentDay = Integer.parseInt(dateOfyear.format(new Date(date - (long) (86400000 * i))));
             block1:
-            for (int x = 0; x < this.logItems.getItems().size(); ++x) {
-                ItemPanel item =  this.logItems.getItems().get(x);
-                if (Integer.parseInt(this.dateOfyear.format(new Date(item.getTime()))) != currentDay || !item.type.equals("Buy"))
+            for (int x = 0; x < logItems.getItems().size(); ++x) {
+                ItemPanel item = logItems.getItems().get(x);
+                if (Integer.parseInt(dateOfyear.format(new Date(item.getTime()))) != currentDay || !item.type.equals("Buy"))
                     continue;
                 int amountCounted = 0;
                 for (int z = x; z >= 0; --z) {
-                    ItemPanel item2 =  this.logItems.getItems().get(z);
+                    ItemPanel item2 = logItems.getItems().get(z);
                     if (!item2.getType().equals("Sell") || !item2.itemName.equals(item.itemName) || item2.amount == amountHandled[z])
                         continue;
                     if (item2.amount - amountHandled[z] >= item.amount - amountCounted) {
@@ -212,89 +231,135 @@ public class GuiController {
                     amountCounted += item2.amount - amountHandled[z];
                 }
             }
-            this.totalProfit += profitToday;
-            series1.getData().add(new XYChart.Data(this.dayFormat.format(new Date(date - (long) (86400000 * i))), profitToday));
+            totalProfit += profitToday;
+            series1.getData().add(new XYChart.Data<>(dayFormat.format(new Date(date - (long) (86400000 * i))), profitToday));
             profitToday = 0;
         }
         lineChartData.add(series1);
-        this.profitChart.getData().clear();
-        this.profitChart.setData(lineChartData);
-        this.profitChart.createSymbolsProperty();
+        profitChart.getData().clear();
+        profitChart.setData(lineChartData);
+        profitChart.createSymbolsProperty();
     }
 
+    /**
+     * Set the UI properties
+     */
     public void loadUp() {
-        this.useWikiBox.setSelected(this.profileManager.useItemsWithLimits);
-        this.useSoundBox.setSelected(this.profileManager.useSound);
-        this.useSearchBox.setSelected(this.profileManager.useSearch);
-        this.useRuleTimerBox.setSelected(this.profileManager.useRuleTimer);
-        this.profileManager.updateMargins();
-        this.profileField.setText(this.profileManager.profileName);
-        this.notesField.setText("" + this.profileManager.marginFile);
-        this.ruleField.setText(this.profileManager.ruleSound == null ? "Default" : "" + this.profileManager.ruleSound);
-        if (this.profileManager.ruleSound != null) {
-            this.audioHandler.soundEffect.add(2, new SoundEffect(this.profileManager.ruleSound));
+        useWikiBox.setSelected(profileManager.useItemsWithLimits);
+        useSoundBox.setSelected(profileManager.useSound);
+        useSearchBox.setSelected(profileManager.useSearch);
+        useRuleTimerBox.setSelected(profileManager.useRuleTimer);
+        profileManager.updateMargins();
+        profileField.setText(profileManager.profileName);
+        notesField.setText("" + profileManager.marginFile);
+        ruleField.setText(profileManager.ruleSound == null ? "Default" : "" + profileManager.ruleSound);
+        if (profileManager.ruleSound != null) {
+            audioHandler.soundEffect.add(2, new SoundEffect(profileManager.ruleSound));
         }
-        this.fileManager.load( this.activeItems.getItems(),  this.logItems.getItems(), this.profileManager.getLogFile(), this.profileManager.controller);
-        if (this.addressBox.getItems() != null) {
-            this.addressBox.getItems().clear();
+        fileManager.load(activeItems.getItems(), logItems.getItems(), profileManager.getLogFile(), profileManager.controller);
+        if (addressBox.getItems() != null) {
+            addressBox.getItems().clear();
         }
-        this.addressBox.getItems().addAll(this.profileManager.websites.split("::"));
+        addressBox.getItems().addAll(profileManager.websites.split("::"));
     }
 
+    /**
+     * Add a flip item to the active items
+     *
+     * @param type     buy/sell
+     * @param itemName name of the item
+     * @param price    price of the item
+     * @param amount   number of the items
+     * @param date     the time of the offer
+     */
     public void addItem(String type, String itemName, int price, int amount, long date) {
         ItemPanel pane = new ItemPanel(itemName, price, amount, type, date, this);
-        this.activeItems.getItems().add(pane);
+        activeItems.getItems().add(pane);
     }
 
+    /**
+     * Add a flip item to the active items
+     *
+     * @param type     buy/sell
+     * @param itemName name of the item
+     * @param price    price of the item
+     * @param amount   number of the items
+     * @param date     the time of the offer
+     */
     public void addLogItem(String type, String itemName, int price, int amount, long date, int duration) {
         ItemPanel pane = new ItemPanel(itemName, price, amount, type, date, this);
         pane.duration = duration;
         pane.setLog();
-        this.logItems.getItems().add(pane);
+        logItems.getItems().add(pane);
     }
 
+    /**
+     * Add a flip to the log
+     *
+     * @param itemPanel the panel containing the to be logged flips data
+     */
     public void addLogItem(ItemPanel itemPanel) {
-        itemPanel.setDate(this.getDate().getTime());
+        itemPanel.setDate(getDate().getTime());
         itemPanel.setLog();
-        this.logItems.getItems().add(0, itemPanel);
+        logItems.getItems().add(0, itemPanel);
     }
 
-    public Date getDate() {
+    /**
+     * Return the current date
+     *
+     * @return date
+     */
+    Date getDate() {
         return new Date();
     }
 
+    /**
+     * Handle the shutdown of the program
+     */
     public void doClose() {
-        this.profileManager.save();
-        this.profileManager.saveAll();
+        profileManager.save();
+        profileManager.saveAll();
+        runThreads = false;
         Logger.Log("Close button clicked: Shutting down..");
         System.exit(0);
     }
 
+    /**
+     * Fetch the latest margin on a specific item
+     *
+     * @param itemName the name of the item
+     * @return the margin
+     */
     public int[] getMargin(String itemName) {
         int sellPrice = 0;
         int buyPrice = 0;
-        for (int i = 0; i < this.logItems.getItems().size(); ++i) {
-            if (!this.logItems.getItems().get(i).itemName.equals(itemName)) continue;
-            if (this.logItems.getItems().get(i).type.equals("Buy") && buyPrice == 0) {
-                buyPrice = this.logItems.getItems().get(i).price;
+        for (int i = 0; i < logItems.getItems().size(); ++i) {
+            if (!logItems.getItems().get(i).itemName.equals(itemName)) continue;
+            if (logItems.getItems().get(i).type.equals("Buy") && buyPrice == 0) {
+                buyPrice = logItems.getItems().get(i).price;
                 continue;
             }
             if (sellPrice != 0) continue;
-            sellPrice = this.logItems.getItems().get(i).price;
+            sellPrice = logItems.getItems().get(i).price;
         }
         return new int[]{buyPrice, sellPrice};
     }
 
+    /**
+     * Check the cooldown on a specific item
+     *
+     * @param itemName the name of the item
+     * @return the cooldown (how long until its refreshed and how many items still remain from the cap)
+     */
     public String checkCooldown(String itemName) {
         String message;
         int onCooldown = 0;
-        HashMap<String, Integer> limitMap = this.profileManager.getLimits();
+        HashMap<String, Integer> limitMap = profileManager.getLimits();
         int limit = 0;
-        if (limitMap.containsKey(itemName)) {
+        if (limitMap.containsKey(itemName))
             limit = limitMap.get(itemName);
-        }
-        for (int i = 0; i < this.logItems.getItems().size(); ++i) {
-            ItemPanel item = this.logItems.getItems().get(i);
+        for (int i = 0; i < logItems.getItems().size(); ++i) {
+            ItemPanel item = logItems.getItems().get(i);
             if (!item.itemName.equalsIgnoreCase(itemName) || !item.getType().equals("Buy") || !item.isOnCooldown())
                 continue;
             onCooldown += item.amount;
@@ -303,8 +368,47 @@ public class GuiController {
         return message;
     }
 
+    /**
+     * Set the stage of this window
+     *
+     * @param stage
+     */
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    /**
+     * Fetch the stage of this window
+     *
+     * @return stage
+     */
+    Stage getStage() {
+        return stage;
+    }
+
+    /**
+     * Fetch the task to be ran once a minute
+     *
+     * @return minuteTask
+     */
+    Runnable getMinuteTask() {
+        return minuteTask;
+    }
+
+    /**
+     * Set the text of the notes area
+     * @param notes
+     */
+    public void setNotes(String notes){
+        this.notes = notes;
+    }
+
+    /**
+     * Fetch the text of the notes area
+     * @return
+     */
+    public String getNotes(){
+        return notes;
     }
 
     @FXML
@@ -386,7 +490,7 @@ public class GuiController {
     @FXML
     protected void handleButtonAction(ActionEvent event) {
         Stage nameInput2;
-        Optional itemName;
+        Optional<String> itemName;
         if (event.getSource().getClass().equals(MenuItem.class)) {
             MenuItem item = (MenuItem) event.getSource();
             switch (item.getText()) {
@@ -428,7 +532,7 @@ public class GuiController {
                         return;
                     }
                     this.input.setHeaderText("Enter the item limit");
-                    Optional limitStr = this.input.showAndWait();
+                    Optional<String> limitStr = this.input.showAndWait();
                     if (!limitStr.isPresent()) {
                         return;
                     }
@@ -438,7 +542,7 @@ public class GuiController {
                     } catch (NumberFormatException nfe) {
                         nfe.printStackTrace();
                     }
-                    this.profileManager.addLimit((String) itemName.get(), limit);
+                    this.profileManager.addLimit(itemName.get(), limit);
                     this.profileManager.saveLimits();
                     break;
                 }
@@ -477,12 +581,12 @@ public class GuiController {
                     break;
                 }
                 case "Save": {
-                    this.fileManager.save( this.activeItems.getItems(),  this.logItems.getItems(), this);
+                    this.fileManager.save(this.activeItems.getItems(), this.logItems.getItems(), this);
                     Logger.Log("Save command");
                     break;
                 }
                 case "Load": {
-                    this.fileManager.load( this.activeItems.getItems(),  this.logItems.getItems(), this);
+                    this.fileManager.load(this.activeItems.getItems(), this.logItems.getItems(), this);
                     Logger.Log("Load command");
                     break;
                 }
