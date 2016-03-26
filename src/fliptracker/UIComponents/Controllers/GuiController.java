@@ -411,35 +411,38 @@ public class GuiController {
         return notes;
     }
 
+    /**
+     * Handle settings tab buttons
+     * @param event
+     */
     @FXML
     protected void handleSettingsClick(ActionEvent event) {
         if (event.getSource().getClass().equals(CheckBox.class)) {
             CheckBox checkBox = (CheckBox) event.getSource();
             switch (checkBox.getText()) {
                 case "Only allow items with limits": {
-                    this.profileManager.useItemsWithLimits = checkBox.isSelected();
+                    profileManager.useItemsWithLimits = checkBox.isSelected();
                     Logger.Log("Wiki command");
                     break;
                 }
                 case "Always on top": {
-                    if (this.stage != null) {
-                        this.stage.setAlwaysOnTop(this.alwaysOnTop.isSelected());
-                    }
+                    if (stage != null)
+                        stage.setAlwaysOnTop(alwaysOnTop.isSelected());
                     Logger.Log("Always on top command");
                     break;
                 }
                 case "Use sound": {
-                    this.profileManager.useSound = this.useSoundBox.isSelected();
+                    profileManager.useSound = useSoundBox.isSelected();
                     Logger.Log("Use sound command");
                     break;
                 }
                 case "Use search": {
-                    this.profileManager.useSearch = this.useSearchBox.isSelected();
+                    profileManager.useSearch = useSearchBox.isSelected();
                     Logger.Log("Use search command");
                     break;
                 }
                 case "Use rule timer": {
-                    this.profileManager.useRuleTimer = this.useRuleTimerBox.isSelected();
+                    profileManager.useRuleTimer = useRuleTimerBox.isSelected();
                     Logger.Log("Use rule timer");
                     break;
                 }
@@ -452,20 +455,19 @@ public class GuiController {
             Button button = (Button) event.getSource();
             switch (button.getText()) {
                 case "Load": {
-                    if (this.profileField.getText().isEmpty()) {
+                    if (profileField.getText().isEmpty())
                         return;
-                    }
-                    this.profileManager.loadProfile(this.profileField.getText(), true);
+                    profileManager.loadProfile(profileField.getText(), true);
                     Logger.Log("Load command");
                     break;
                 }
                 case "Choose": {
-                    this.profileManager.chooseNotesFile();
+                    profileManager.chooseNotesFile();
                     Logger.Log("Choose notes command");
                     break;
                 }
                 case "Select": {
-                    this.profileManager.chooseRuleFile();
+                    profileManager.chooseRuleFile();
                     Logger.Log("Choose rule sound");
                     break;
                 }
@@ -476,6 +478,10 @@ public class GuiController {
         }
     }
 
+    /**
+     * Open the edit dialogue for the data of the specified itemPanel
+     * @param itemPanel the itemPanel
+     */
     public void editCommand(ItemPanel itemPanel) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("UIComponents/FXML/AddItem.fxml"));
@@ -487,6 +493,10 @@ public class GuiController {
         }
     }
 
+    /**
+     * Handle main GUI buttons
+     * @param event
+     */
     @FXML
     protected void handleButtonAction(ActionEvent event) {
         Stage nameInput2;
@@ -495,44 +505,44 @@ public class GuiController {
             MenuItem item = (MenuItem) event.getSource();
             switch (item.getText()) {
                 case "Close": {
-                    this.doClose();
+                    doClose();
                     break;
                 }
                 case "Dump wiki limits": {
-                    this.profileManager.dumpWikiLimits();
-                    this.alert.setAlertType(Alert.AlertType.INFORMATION);
-                    this.alert.setTitle("Dump limits");
-                    this.alert.setHeaderText(null);
-                    this.alert.setContentText("All wiki limits dumped!");
-                    this.alert.showAndWait();
-                    this.profileManager.saveLimits();
+                    profileManager.dumpWikiLimits();
+                    alert.setAlertType(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Dump limits");
+                    alert.setHeaderText(null);
+                    alert.setContentText("All wiki limits dumped!");
+                    alert.showAndWait();
+                    profileManager.saveLimits();
                     break;
                 }
                 case "New": {
-                    this.input.setHeaderText("Enter the profile name");
-                    this.input.setTitle("Create profile");
-                    this.input.showAndWait().ifPresent(this.profileManager::createProfile
+                    input.setHeaderText("Enter the profile name");
+                    input.setTitle("Create profile");
+                    input.showAndWait().ifPresent(profileManager::createProfile
                     );
                     Logger.Log("Create profile");
                     break;
                 }
                 case "Load": {
-                    this.input.setHeaderText("Enter the profile name to load");
-                    this.input.setTitle("Load profile");
-                    this.input.showAndWait().ifPresent(profile -> this.profileManager.loadProfile(profile, true)
+                    input.setHeaderText("Enter the profile name to load");
+                    input.setTitle("Load profile");
+                    input.showAndWait().ifPresent(profile -> profileManager.loadProfile(profile, true)
                     );
                     Logger.Log("Load profile");
                     break;
                 }
                 case "Add limit": {
-                    this.input.setHeaderText("Enter the item name");
-                    this.input.setTitle("Add limit");
-                    itemName = this.input.showAndWait();
+                    input.setHeaderText("Enter the item name");
+                    input.setTitle("Add limit");
+                    itemName = input.showAndWait();
                     if (!itemName.isPresent()) {
                         return;
                     }
-                    this.input.setHeaderText("Enter the item limit");
-                    Optional<String> limitStr = this.input.showAndWait();
+                    input.setHeaderText("Enter the item limit");
+                    Optional<String> limitStr = input.showAndWait();
                     if (!limitStr.isPresent()) {
                         return;
                     }
@@ -542,16 +552,16 @@ public class GuiController {
                     } catch (NumberFormatException nfe) {
                         nfe.printStackTrace();
                     }
-                    this.profileManager.addLimit(itemName.get(), limit);
-                    this.profileManager.saveLimits();
+                    profileManager.addLimit(itemName.get(), limit);
+                    profileManager.saveLimits();
                     break;
                 }
                 case "Get margin": {
-                    ItemNameInput nameInput = new ItemNameInput(this, 2);
+                    ItemNameInput nameInput = new ItemNameInput(this, ItemNameInput.MARGIN);
                     break;
                 }
                 case "Check cooldown": {
-                    nameInput2 = new ItemNameInput(this, 1);
+                    nameInput2 = new ItemNameInput(this, ItemNameInput.COOLDOWN);
                     break;
                 }
                 default: {
@@ -575,18 +585,18 @@ public class GuiController {
                     break;
                 }
                 case "Delete": {
-                    this.activeItems.getItems().remove(this.activeItems.getSelectionModel().getSelectedItem());
-                    this.profileManager.saveLogFile();
+                    activeItems.getItems().remove(activeItems.getSelectionModel().getSelectedItem());
+                    profileManager.saveLogFile();
                     Logger.Log("Delete command");
                     break;
                 }
                 case "Save": {
-                    this.fileManager.save(this.activeItems.getItems(), this.logItems.getItems(), this);
+                    fileManager.save(activeItems.getItems(), logItems.getItems(), this);
                     Logger.Log("Save command");
                     break;
                 }
                 case "Load": {
-                    this.fileManager.load(this.activeItems.getItems(), this.logItems.getItems(), this);
+                    fileManager.load(activeItems.getItems(), logItems.getItems(), this);
                     Logger.Log("Load command");
                     break;
                 }
@@ -596,6 +606,5 @@ public class GuiController {
             }
         }
     }
-
 }
 
