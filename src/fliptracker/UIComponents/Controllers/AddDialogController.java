@@ -64,7 +64,7 @@ public class AddDialogController {
         guiController = controller;
         this.window = window;
         this.window.setResizable(false);
-        window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
+        window.setAlwaysOnTop(controller.getStage().isAlwaysOnTop());
         setStylesheet();
         if (guiController.profileManager.useSearch)
             addSearch();
@@ -134,7 +134,7 @@ public class AddDialogController {
         window.setResizable(false);
         itemPanel = panel;
         add.setText("Edit");
-        window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
+        window.setAlwaysOnTop(controller.getStage().isAlwaysOnTop());
         setStylesheet();
         searchBox.setValue(itemPanel.itemName);
         priceField.setText("" + itemPanel.price);
@@ -197,7 +197,7 @@ public class AddDialogController {
                         guiController.addItem(type, itemName, price, amount, guiController.getDate().getTime() - (long) (timeAfter * 1000 * 60));
                         guiController.profileManager.addRecent(itemName);
                         window.close();
-                        Platform.runLater(guiController.minuteTask);
+                        Platform.runLater(guiController.getMinuteTask());
                         guiController.profileManager.saveLogFile();
                         break;
                     } catch (NumberFormatException e) {
@@ -236,7 +236,7 @@ public class AddDialogController {
                             itemPanel.edit(itemName, price, amount, type, itemPanel.getTime(), timeAfter);
                         }
                         window.close();
-                        Platform.runLater(guiController.minuteTask);
+                        Platform.runLater(guiController.getMinuteTask());
                         guiController.profileManager.saveLogFile();
                         return;
                     } catch (NumberFormatException e) {
