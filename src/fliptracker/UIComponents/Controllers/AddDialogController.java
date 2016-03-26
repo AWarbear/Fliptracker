@@ -1,25 +1,3 @@
-/*
- * Decompiled with CFR 0_102.
- * 
- * Could not load the following classes:
- *  javafx.application.Platform
- *  javafx.beans.property.StringProperty
- *  javafx.beans.value.ChangeListener
- *  javafx.beans.value.ObservableValue
- *  javafx.collections.ObservableList
- *  javafx.event.ActionEvent
- *  javafx.event.Event
- *  javafx.fxml.FXML
- *  javafx.scene.control.Alert
- *  javafx.scene.control.Alert$AlertType
- *  javafx.scene.control.Button
- *  javafx.scene.control.CheckBox
- *  javafx.scene.control.ComboBox
- *  javafx.scene.control.Label
- *  javafx.scene.control.TextField
- *  javafx.scene.layout.Pane
- *  javafx.stage.Stage
- */
 package fliptracker.UIComponents.Controllers;
 
 import fliptracker.UIComponents.ItemPanel;
@@ -36,8 +14,12 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
+/**
+ * Controller for the add item dialog, also used for editing
+ */
 @SuppressWarnings("ALL")
 public class AddDialogController {
+
     public CheckBox cBox;
     public TextField priceField;
     public TextField amountField;
@@ -45,56 +27,76 @@ public class AddDialogController {
     public Label timeLabel;
     public ComboBox<String> searchBox;
     public Pane rootPane;
+    public Button add;
+
     private GuiController guiController;
     private Stage window;
     private ItemPanel itemPanel;
-    public Button add;
+
+    /**
+     * Item data
+     */
     int price;
     int amount;
     int timeAfter;
     String itemName;
     String type;
 
-    public void setStylesheet(){
-        this.rootPane.getStylesheets().clear();
+    /**
+     * Set the style according to the profile managers choosen theme
+     */
+    public void setStylesheet() {
+        rootPane.getStylesheets().clear();
         try {
-            this.rootPane.getStylesheets().add(guiController.profileManager.cssUrls.get(guiController.profileManager.currentTheme));
-        }catch(IndexOutOfBoundsException iobe){
+            rootPane.getStylesheets().add(guiController.profileManager.cssUrls.get(guiController.profileManager.currentTheme));
+        } catch (IndexOutOfBoundsException iobe) {
             //No value so go default
         }
     }
 
+    /**
+     * Apply the default values
+     *
+     * @param controller guiController
+     * @param window     the stage for this
+     */
     public void setValues(GuiController controller, Stage window) {
-        this.guiController = controller;
+        guiController = controller;
         this.window = window;
         this.window.setResizable(false);
         window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
         setStylesheet();
-        if (this.guiController.profileManager.useSearch) {
-            this.addSearch();
-        }
-        this.searchBox.requestFocus();
+        if (guiController.profileManager.useSearch)
+            addSearch();
+        searchBox.requestFocus();
         window.setAlwaysOnTop(true);
         window.toFront();
     }
 
+    /**
+     * Add the live search function to the text box, only call this if selected on settings
+     */
     public void addSearch() {
-        this.searchBox.getEditor().textProperty().addListener(new ChangeListener<String>(){
+        searchBox.getEditor().textProperty().addListener(new ChangeListener<String>() {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (!AddDialogController.this.searchBox.getItems().contains(AddDialogController.this.searchBox.getValue())) {
-                    AddDialogController.this.handleSearch(AddDialogController.this.searchBox.getEditor().getText());
-                }
+                if (!searchBox.getItems().contains(searchBox.getValue()))
+                    handleSearch(searchBox.getEditor().getText());
             }
         });
     }
 
+    /**
+     * Search for the item
+     *
+     * @param string keyword
+     */
     public void handleSearch(String string) {
         if (string == null || string.isEmpty()) {
             return;
         }
-        ArrayList<String> keyArray = new ArrayList<String>();
-        keyArray.addAll(this.guiController.profileManager.limitMap.keySet());
-        ArrayList<String> matches = new ArrayList<String>();
+        ArrayList<String> keyArray = new ArrayList<>();
+        keyArray.addAll(guiController.profileManager.limitMap.keySet());
+        ArrayList<String> matches = new ArrayList<>();
         for (String key : keyArray) {
             if (!key.toLowerCase().contains(string.toLowerCase())) continue;
             matches.add(key);
@@ -103,134 +105,141 @@ public class AddDialogController {
             matches.clear();
             return;
         }
-        if (matches.size() == 0) {
+        if (matches.size() == 0)
             return;
-        }
-        if (this.searchBox.getItems() != null) {
-            this.searchBox.getItems().clear();
-        }
+        if (searchBox.getItems() != null)
+            searchBox.getItems().clear();
         for (String match : matches) {
-            if (match != null) {
-                this.searchBox.getItems().add(match);
-            }
+            if (match != null)
+                searchBox.getItems().add(match);
             Logger.Log("Search match: " + match);
         }
-        this.searchBox.show();
+        searchBox.show();
     }
 
+    /**
+     * Apply the values gotten from the selected item panel (for editing)
+     *
+     * @param controller guiController
+     * @param window     the stage
+     * @param panel      the item panel to read data from
+     */
     public void setValues(GuiController controller, Stage window, ItemPanel panel) {
         if (panel == null) {
             Logger.Log("no panel selected, let's ignore");
             return;
         }
-        this.guiController = controller;
-        this.window = window;
-        this.window.setResizable(false);
-        this.itemPanel = panel;
-        this.add.setText("Edit");
+        guiController = controller;
+        window = window;
+        window.setResizable(false);
+        itemPanel = panel;
+        add.setText("Edit");
         window.setAlwaysOnTop(controller.stage.isAlwaysOnTop());
         setStylesheet();
-        this.searchBox.setValue(this.itemPanel.itemName);
-        this.priceField.setText("" + this.itemPanel.price);
-        this.cBox.setSelected(this.itemPanel.getType().equals("Buy"));
-        this.amountField.setText("" + this.itemPanel.amount);
-        this.timeSinceStartedField.setText("" + this.itemPanel.timeAfter);
-        if (this.guiController.profileManager.useSearch) {
-            this.addSearch();
-        }
-        this.searchBox.requestFocus();
+        searchBox.setValue(itemPanel.itemName);
+        priceField.setText("" + itemPanel.price);
+        cBox.setSelected(itemPanel.getType().equals("Buy"));
+        amountField.setText("" + itemPanel.amount);
+        timeSinceStartedField.setText("" + itemPanel.timeAfter);
+        if (guiController.profileManager.useSearch)
+            addSearch();
+        searchBox.requestFocus();
         window.setAlwaysOnTop(true);
         window.toFront();
     }
 
+    /**
+     * Show dropdown menu action
+     * @param event
+     */
     @FXML
     protected void showAction(Event event) {
-        if (this.searchBox.getEditor().getText().isEmpty() && this.searchBox.getItems() != null) {
-            this.searchBox.getItems().clear();
-            this.searchBox.getItems().addAll(this.guiController.profileManager.recent.split(":"));
+        if (searchBox.getEditor().getText().isEmpty() && searchBox.getItems() != null) {
+            searchBox.getItems().clear();
+            searchBox.getItems().addAll(guiController.profileManager.recent.split(":"));
         }
     }
 
+    /**
+     * Handle button actions
+     * @param event
+     */
     @FXML
     protected void handleAction(ActionEvent event) {
         if (event.getSource().getClass().equals(Button.class)) {
-            Button button = (Button)event.getSource();
+            Button button = (Button) event.getSource();
             switch (button.getText()) {
                 case "Add": {
                     try {
-                        if (this.guiController.profileManager.useItemsWithLimits && !this.guiController.profileManager.limitMap.containsKey(this.searchBox.getValue())) {
+                        if (guiController.profileManager.useItemsWithLimits && !guiController.profileManager.limitMap.containsKey(searchBox.getValue())) {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Item not found");
                             alert.setContentText("Item given has no limit, please add a limit to it or" + System.getProperty("line.separator") + "un-tick the" + " 'only allow items with limit' box" + System.getProperty("line.separator") + "from settings");
                             alert.showAndWait();
                             return;
                         }
-                        this.priceField.setText(this.priceField.getText().toLowerCase().replaceAll("k", "000"));
-                        this.priceField.setText(this.priceField.getText().toLowerCase().replaceAll("m", "000000"));
-                        this.type = this.cBox.isSelected() ? "Buy" : "Sell";
-                        this.itemName = this.searchBox.getValue();
-                        this.price = Integer.parseInt(this.priceField.getText());
-                        int amt = Integer.parseInt(this.amountField.getText());
+                        priceField.setText(priceField.getText().toLowerCase().replaceAll("k", "000"));
+                        priceField.setText(priceField.getText().toLowerCase().replaceAll("m", "000000"));
+                        type = cBox.isSelected() ? "Buy" : "Sell";
+                        itemName = searchBox.getValue();
+                        price = Integer.parseInt(priceField.getText());
+                        int amt = Integer.parseInt(amountField.getText());
                         if (amt <= 0) {
                             Logger.Log("Invalid number");
                             return;
                         }
-                        this.amount = amt;
+                        amount = amt;
                         try {
-                            this.timeAfter = Integer.parseInt(this.timeSinceStartedField.getText());
+                            timeAfter = Integer.parseInt(timeSinceStartedField.getText());
+                        } catch (NumberFormatException nfe) {
+                            timeAfter = 0;
                         }
-                        catch (NumberFormatException nfe) {
-                            this.timeAfter = 0;
-                        }
-                        this.guiController.addItem(this.type, this.itemName, this.price, this.amount, this.guiController.getDate().getTime() - (long)(this.timeAfter * 1000 * 60));
-                        this.guiController.profileManager.addRecent(this.itemName);
-                        this.window.close();
-                        Platform.runLater(this.guiController.minuteTask);
-                        this.guiController.profileManager.saveLogFile();
+                        guiController.addItem(type, itemName, price, amount, guiController.getDate().getTime() - (long) (timeAfter * 1000 * 60));
+                        guiController.profileManager.addRecent(itemName);
+                        window.close();
+                        Platform.runLater(guiController.minuteTask);
+                        guiController.profileManager.saveLogFile();
                         break;
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         Logger.Log("Invalid number");
                         return;
                     }
                 }
                 case "Edit": {
                     try {
-                        if (this.guiController.profileManager.useItemsWithLimits && !this.guiController.profileManager.limitMap.containsKey(this.searchBox.getValue())) {
+                        if (guiController.profileManager.useItemsWithLimits && !guiController.profileManager.limitMap.containsKey(searchBox.getValue())) {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Item not found");
                             alert.setContentText("Item given has no limit, please add a limit to it or" + System.getProperty("line.separator") + "un-tick the" + " 'only allow items with limit' box" + System.getProperty("line.separator") + "from settings");
                             alert.showAndWait();
                             return;
                         }
-                        this.priceField.setText(this.priceField.getText().toLowerCase().replaceAll("k", "000"));
-                        this.priceField.setText(this.priceField.getText().toLowerCase().replaceAll("m", "000000"));
-                        this.type = this.cBox.isSelected() ? "Buy" : "Sell";
-                        this.itemName = this.searchBox.getValue();
-                        this.price = Integer.parseInt(this.priceField.getText());
-                        int amt = Integer.parseInt(this.amountField.getText());
+                        priceField.setText(priceField.getText().toLowerCase().replaceAll("k", "000"));
+                        priceField.setText(priceField.getText().toLowerCase().replaceAll("m", "000000"));
+                        type = cBox.isSelected() ? "Buy" : "Sell";
+                        itemName = searchBox.getValue();
+                        price = Integer.parseInt(priceField.getText());
+                        int amt = Integer.parseInt(amountField.getText());
                         if (amt <= 0) {
                             Logger.Log("Invalid number");
                             return;
                         }
-                        this.amount = amt;
+                        amount = amt;
                         try {
-                            this.timeAfter = Integer.parseInt(this.timeSinceStartedField.getText());
+                            timeAfter = Integer.parseInt(timeSinceStartedField.getText());
+                        } catch (NumberFormatException nfe) {
+                            timeAfter = 0;
                         }
-                        catch (NumberFormatException nfe) {
-                            this.timeAfter = 0;
-                        }
-                        if (this.itemPanel.complete.getText().equals("Complete")) {
-                            this.itemPanel.edit(this.itemName, this.price, this.amount, this.type, this.guiController.getDate().getTime(), this.timeAfter);
+                        if (itemPanel.complete.getText().equals("Complete")) {
+                            itemPanel.edit(itemName, price, amount, type, guiController.getDate().getTime(), timeAfter);
                         } else {
-                            this.itemPanel.edit(this.itemName, this.price, this.amount, this.type, this.itemPanel.getTime(), this.timeAfter);
+                            itemPanel.edit(itemName, price, amount, type, itemPanel.getTime(), timeAfter);
                         }
-                        this.window.close();
-                        Platform.runLater(this.guiController.minuteTask);
-                        this.guiController.profileManager.saveLogFile();
+                        window.close();
+                        Platform.runLater(guiController.minuteTask);
+                        guiController.profileManager.saveLogFile();
                         return;
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         Logger.Log("Invalid number");
                         return;
                     }
