@@ -396,10 +396,10 @@ public class ProfileManager {
      * Update the margins area
      */
     public void updateMargins() {
-        if (controller.notes == null) {
+        if (controller.getNotes() == null) {
             return;
         }
-        controller.noteArea.setText(controller.notes);
+        controller.noteArea.setText(controller.getNotes());
     }
 
     /**
@@ -408,14 +408,14 @@ public class ProfileManager {
     private void loadMargins() {
         ArrayList<String> limits = controller.fileManager.getFileLines(getMarginsFile());
         if (limits == null) {
-            controller.notes = "";
+            controller.setNotes("");
             return;
         }
         String text = "";
         for (String limit : limits) {
             text = text + limit + System.getProperty("line.separator");
         }
-        controller.notes = text;
+        controller.setNotes(text);
     }
 
     /**
