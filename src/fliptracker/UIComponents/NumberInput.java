@@ -22,40 +22,40 @@ class NumberInput extends Stage {
      * Input type
      */
     static final int COMPLETE = 1;
-    
-    
+
+
     private final GuiController controller;
-    
+
     private final TextField inputField;
-    
+
     private final int type;
-    
+
     private ItemPanel item;
 
     /**
      * Create the input field
+     *
      * @param controller
      */
     NumberInput(GuiController controller) {
         this.controller = controller;
-        this.type = NumberInput.COMPLETE;
+        type = NumberInput.COMPLETE;
         Button complete = new Button("Submit");
-        complete.setOnAction(this::handleButtonPress
-        );
+        complete.setOnAction(this::handleButtonPress);
         complete.setMinWidth(80.0);
-        this.inputField = new TextField("");
+        inputField = new TextField("");
         Label textLabel = new Label("");
         textLabel.setWrapText(true);
-        switch (1) {
-            case 1: {
+
+        //set the prompts based on type
+        switch (type) {
+            case NumberInput.COMPLETE:
                 textLabel.setText("Enter the number of items to complete");
-                this.setTitle("Complete offer");
+                setTitle("Complete offer");
                 break;
-            }
-            default: {
-                this.setTitle("Number input dialog");
+            default:
+                setTitle("Number input dialog");
                 textLabel.setText("Number input dialog");
-            }
         }
         GridPane.setConstraints(complete, 2, 1);
         GridPane.setConstraints(this.inputField, 0, 1);
@@ -70,15 +70,21 @@ class NumberInput extends Stage {
         container.setVgap(10.0);
         container.getChildren().addAll(complete, this.inputField, textLabel);
         container.setId("addDialog");
-        this.setScene(new Scene(container, 350.0, 100.0));
-        this.getScene().getStylesheets().add(controller.profileManager.cssUrls.get(controller.profileManager.currentTheme));
-        this.setResizable(false);
-        this.setAlwaysOnTop(true);
-        this.show();
+        setScene(new Scene(container, 350.0, 100.0));
+
+        //Set the theme
+        String theme = controller.profileManager.getThemeCss();
+        if (theme == null) getScene().getStylesheets().clear();
+        else getScene().getStylesheets().add(controller.profileManager.getThemeCss());
+
+        setResizable(false);
+        setAlwaysOnTop(true);
+        show();
     }
 
     /**
      * Set the item to input number to
+     *
      * @param item new item
      */
     public void setItem(ItemPanel item) {
@@ -87,22 +93,21 @@ class NumberInput extends Stage {
 
     /**
      * Handle buttons
+     *
      * @param event
      */
     private void handleButtonPress(ActionEvent event) {
         if (event.getSource().getClass().equals(Button.class)) {
-            Button button = (Button)event.getSource();
+            Button button = (Button) event.getSource();
             switch (button.getText()) {
                 case "Submit": {
                     switch (type) {
                         case 1: {
                             int amount;
-                            if (item == null)
-                                return;
+                            if (item == null) return;
                             try {
                                 amount = Integer.parseInt(inputField.getText());
-                            }
-                            catch (NumberFormatException nfe) {
+                            } catch (NumberFormatException nfe) {
                                 Logger.Log("Invalid number don't do anything");
                                 return;
                             }
@@ -115,8 +120,9 @@ class NumberInput extends Stage {
                                 controller.activeItems.getItems().remove(item);
                                 close();
                             } else {
-                                item.amount-=amount;
-                                ItemPanel pane = new ItemPanel(item.itemName, item.price, amount, item.type, item.getTime(), controller);
+                                item.amount -= amount;
+                                ItemPanel pane =
+                                        new ItemPanel(item.itemName, item.price, amount, item.type, item.getTime(), controller);
                                 pane.duration = item.duration;
                                 controller.addLogItem(pane);
                                 item.update();

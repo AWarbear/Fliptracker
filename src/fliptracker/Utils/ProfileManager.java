@@ -47,7 +47,7 @@ public class ProfileManager {
     /**
      * Construct the profile manager and initiate all values
      *
-     * @param controller
+     * @param controller the ui controller
      */
     public ProfileManager(GuiController controller) {
         cssUrls.add(this.getClass().getResource("/fliptracker/res/style.css").toExternalForm());
@@ -88,7 +88,7 @@ public class ProfileManager {
     /**
      * Add an item to recently used items
      *
-     * @param item
+     * @param item the item to add
      */
     public void addRecent(String item) {
         if (recent == null) {
@@ -131,6 +131,19 @@ public class ProfileManager {
             controller.rootPane.getStylesheets().add(cssUrls.get(currentTheme));
         }catch(IndexOutOfBoundsException iobe){
             //No theme in list, assume default (light theme)
+        }
+    }
+
+    /**
+     * Get the css url of the theme or null if default
+     * @return
+     */
+    public String getThemeCss() {
+        switch(currentTheme){
+            case 2:
+                return null;
+            default:
+                return cssUrls.get(currentTheme);
         }
     }
 
