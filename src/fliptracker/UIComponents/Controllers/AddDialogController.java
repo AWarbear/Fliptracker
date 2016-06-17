@@ -130,7 +130,7 @@ public class AddDialogController {
             return;
         }
         guiController = controller;
-        window = window;
+        this.window = window;
         window.setResizable(false);
         itemPanel = panel;
         add.setText("Edit");
