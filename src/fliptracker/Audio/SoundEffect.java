@@ -15,14 +15,14 @@ public class SoundEffect {
     private String name;
 
     /**
-     * Create the soundeffect from name and path
-     * @param name
-     * @param Path
+     * Create the sound effect from name and path
+     * @param name name of the effect
+     * @param path the path of the effect
      */
-    SoundEffect(String name, String Path) {
+    SoundEffect(String name, String path) {
         this.name = name;
         try {
-            audioInputStream = AudioSystem.getAudioInputStream(SoundEffect.getResource("Sounds/" + Path));
+            audioInputStream = AudioSystem.getAudioInputStream(SoundEffect.getResource("Sounds/" + path));
             AudioFormat format = audioInputStream.getFormat();
             DataLine.Info info = new DataLine.Info(Clip.class, format);
             clip = (Clip)AudioSystem.getLine(info);
@@ -36,7 +36,7 @@ public class SoundEffect {
 
     /**
      * Create a sound effect from file
-     * @param file
+     * @param file effect file
      */
     public SoundEffect(File file) {
         try {

@@ -16,7 +16,7 @@ public class Main extends Application {
     /**
      * Start the program
      *
-     * @param primaryStage
+     * @param primaryStage the stage
      * @throws Exception
      */
     public void start(Stage primaryStage) throws Exception {

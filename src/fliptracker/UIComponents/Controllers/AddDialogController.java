@@ -3,8 +3,6 @@ package fliptracker.UIComponents.Controllers;
 import fliptracker.UIComponents.ItemPanel;
 import fliptracker.Utils.Logger;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -17,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Controller for the add item dialog, also used for editing
  */
-@SuppressWarnings("ALL")
+
 public class AddDialogController {
 
     public CheckBox cBox;
@@ -36,16 +34,16 @@ public class AddDialogController {
     /**
      * Item data
      */
-    int price;
-    int amount;
-    int timeAfter;
-    String itemName;
-    String type;
+    private int price;
+    private int amount;
+    private int timeAfter;
+    private String itemName;
+    private String type;
 
     /**
-     * Set the style according to the profile managers choosen theme
+     * Set the style according to the profile managers chosen theme
      */
-    public void setStylesheet() {
+    private void setStylesheet() {
         rootPane.getStylesheets().clear();
         try {
             rootPane.getStylesheets().add(guiController.profileManager.cssUrls.get(guiController.profileManager.currentTheme));
@@ -76,12 +74,10 @@ public class AddDialogController {
     /**
      * Add the live search function to the text box, only call this if selected on settings
      */
-    public void addSearch() {
-        searchBox.getEditor().textProperty().addListener(new ChangeListener<String>() {
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (!searchBox.getItems().contains(searchBox.getValue()))
-                    handleSearch(searchBox.getEditor().getText());
-            }
+    private void addSearch() {
+        searchBox.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!searchBox.getItems().contains(searchBox.getValue()))
+                handleSearch(searchBox.getEditor().getText());
         });
     }
 
@@ -90,7 +86,7 @@ public class AddDialogController {
      *
      * @param string keyword
      */
-    public void handleSearch(String string) {
+    private void handleSearch(String string) {
         if (string == null || string.isEmpty()) {
             return;
         }
@@ -150,7 +146,7 @@ public class AddDialogController {
 
     /**
      * Show dropdown menu action
-     * @param event
+     * @param event the action event
      */
     @FXML
     protected void showAction(Event event) {
@@ -162,7 +158,7 @@ public class AddDialogController {
 
     /**
      * Handle button actions
-     * @param event
+     * @param event the action event
      */
     @FXML
     protected void handleAction(ActionEvent event) {

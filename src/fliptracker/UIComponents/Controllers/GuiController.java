@@ -110,7 +110,7 @@ public class GuiController {
                 ItemPanel item = logItems.getItems().get(i);
                 item.durationLabel.setText("" + item.getDuration() + " mins");
                 if (item.getType().equals("Sell")) continue;
-                if (!item.isOnCooldown()) {
+                if (item.notOnCooldown()) {
                     item.setOnCooldown(false);
                     continue;
                 }
@@ -144,6 +144,7 @@ public class GuiController {
                     }
                     if (mediumTick == 10) {
                         Platform.runLater(saveTask);
+                        mediumTick = 0;
                     } else {
                         ++mediumTick;
                     }
@@ -360,7 +361,7 @@ public class GuiController {
             limit = limitMap.get(itemName);
         for (int i = 0; i < logItems.getItems().size(); ++i) {
             ItemPanel item = logItems.getItems().get(i);
-            if (!item.itemName.equalsIgnoreCase(itemName) || !item.getType().equals("Buy") || !item.isOnCooldown())
+            if (!item.itemName.equalsIgnoreCase(itemName) || !item.getType().equals("Buy") || item.notOnCooldown())
                 continue;
             onCooldown += item.amount;
         }
@@ -371,7 +372,7 @@ public class GuiController {
     /**
      * Set the stage of this window
      *
-     * @param stage
+     * @param stage the stage
      */
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -380,7 +381,7 @@ public class GuiController {
     /**
      * Fetch the stage of this window
      *
-     * @return stage
+     * @return stage the stage
      */
     Stage getStage() {
         return stage;
@@ -397,7 +398,7 @@ public class GuiController {
 
     /**
      * Set the text of the notes area
-     * @param notes
+     * @param notes notes string
      */
     public void setNotes(String notes){
         this.notes = notes;
@@ -405,7 +406,7 @@ public class GuiController {
 
     /**
      * Fetch the text of the notes area
-     * @return
+     * @return the notes string
      */
     public String getNotes(){
         return notes;
@@ -413,7 +414,7 @@ public class GuiController {
 
     /**
      * Handle settings tab buttons
-     * @param event
+     * @param event click event
      */
     @FXML
     protected void handleSettingsClick(ActionEvent event) {
@@ -487,7 +488,7 @@ public class GuiController {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("UIComponents/FXML/AddItem.fxml"));
             Parent root = fxmlLoader.load();
             AddDialogController controller = fxmlLoader.getController();
-            AddDialog addDialog = new AddDialog(new Scene(root, 320.0, 138.0), this, controller, itemPanel);
+            new AddDialog(new Scene(root, 320.0, 138.0), this, controller, itemPanel);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -495,11 +496,10 @@ public class GuiController {
 
     /**
      * Handle main GUI buttons
-     * @param event
+     * @param event action event
      */
     @FXML
     protected void handleButtonAction(ActionEvent event) {
-        Stage nameInput2;
         Optional<String> itemName;
         if (event.getSource().getClass().equals(MenuItem.class)) {
             MenuItem item = (MenuItem) event.getSource();
@@ -548,7 +548,7 @@ public class GuiController {
                     }
                     int limit = 0;
                     try {
-                        limit = Integer.parseInt(limitStr.get().toString());
+                        limit = Integer.parseInt(limitStr.get());
                     } catch (NumberFormatException nfe) {
                         nfe.printStackTrace();
                     }
@@ -557,11 +557,11 @@ public class GuiController {
                     break;
                 }
                 case "Get margin": {
-                    ItemNameInput nameInput = new ItemNameInput(this, ItemNameInput.MARGIN);
+                    new ItemNameInput(this, ItemNameInput.MARGIN);
                     break;
                 }
                 case "Check cooldown": {
-                    nameInput2 = new ItemNameInput(this, ItemNameInput.COOLDOWN);
+                    new ItemNameInput(this, ItemNameInput.COOLDOWN);
                     break;
                 }
                 default: {
@@ -577,7 +577,7 @@ public class GuiController {
                         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("UIComponents/FXML/AddItem.fxml"));
                         Parent root = fxmlLoader.load();
                         AddDialogController controller = fxmlLoader.getController();
-                        nameInput2 = new AddDialog(new Scene(root, 320.0, 138.0), this, controller);
+                        new AddDialog(new Scene(root, 320.0, 138.0), this, controller);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

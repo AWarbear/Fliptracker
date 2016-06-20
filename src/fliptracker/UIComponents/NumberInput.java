@@ -21,7 +21,7 @@ class NumberInput extends Stage {
     /**
      * Input type
      */
-    static final int COMPLETE = 1;
+    private static final int COMPLETE = 1;
 
 
     private final GuiController controller;
@@ -35,7 +35,7 @@ class NumberInput extends Stage {
     /**
      * Create the input field
      *
-     * @param controller
+     * @param controller the ui controller
      */
     NumberInput(GuiController controller) {
         this.controller = controller;
@@ -94,7 +94,7 @@ class NumberInput extends Stage {
     /**
      * Handle buttons
      *
-     * @param event
+     * @param event the action event
      */
     private void handleButtonPress(ActionEvent event) {
         if (event.getSource().getClass().equals(Button.class)) {

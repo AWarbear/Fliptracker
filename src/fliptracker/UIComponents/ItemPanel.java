@@ -140,8 +140,8 @@ public class ItemPanel extends GridPane {
      * Wether the item is on cooldown
      * @return is on cooldown
      */
-    public boolean isOnCooldown() {
-        return onCooldown;
+    public boolean notOnCooldown() {
+        return !onCooldown;
     }
 
     /**

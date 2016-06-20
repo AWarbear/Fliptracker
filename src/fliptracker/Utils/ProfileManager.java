@@ -136,7 +136,7 @@ public class ProfileManager {
 
     /**
      * Get the css url of the theme or null if default
-     * @return
+     * @return the css location
      */
     public String getThemeCss() {
         switch(currentTheme){

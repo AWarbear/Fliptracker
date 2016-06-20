@@ -8,16 +8,20 @@ import java.util.Date;
  */
 public class Logger {
 
+    public static final boolean DEBUG = false;
+
     /**
      * Print a log message
+     *
      * @param message log message
      */
     public static void Log(String message) {
-        System.out.println(Logger.getTime() + message);
+        if (DEBUG) System.out.println(Logger.getTime() + message);
     }
 
     /**
      * Fetch the current time
+     *
      * @return current time "[HH:mm:ss] - "
      */
     private static String getTime() {

@@ -134,7 +134,7 @@ public class ItemNameInput extends Stage {
 
     /**
      * Handle button clicks
-     * @param event
+     * @param event the action event
      */
     private void handleButtonPress(ActionEvent event) {
         if (event.getSource().getClass().equals(Button.class)) {
